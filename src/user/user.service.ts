@@ -1,0 +1,40 @@
+import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { User } from 'src/entities/user.entity';
+import { Repository } from 'typeorm';
+
+@Injectable()
+export class UserService {
+  constructor(
+    @InjectRepository(User) private userRepository: Repository<User>,
+  ) {}
+  //유저 생성
+  async createUser(user: User): Promise<User> {
+    return await this.userRepository.save(user);
+  }
+  //모든 유저 조회
+  async getAllUsers(): Promise<User[]> {
+    return await this.userRepository.find();
+  }
+  //유저 한명 찾기
+  async getUser(email: string): Promise<User> {
+    return await this.userRepository.findOne({
+      where: { email },
+    });
+  }
+
+  //유저 업데이트
+  async updateUser(email: string, _user: User): Promise<any> {
+    const user: User = await this.getUser(email);
+    console.log(_user);
+    user.username = _user.username;
+    user.password = _user.password;
+    console.log(user);
+    return await this.userRepository.save(user);
+  }
+
+  //유저 삭제
+  async deleteUser(email: string): Promise<any> {
+    return await this.userRepository.delete({ email });
+  }
+}
