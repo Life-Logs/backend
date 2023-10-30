@@ -38,4 +38,19 @@ export class UserService {
   async deleteUser(email: string): Promise<any> {
     return await this.userRepository.delete({ email });
   }
+
+  //구글 유저 검색 및 생성
+  async findByEmailOrSave(email, username, providerId): Promise<User> {
+    const foundUser = await this.getUser(email);
+    if (foundUser) {
+      return foundUser;
+    }
+
+    const newUser = await this.userRepository.save({
+      email,
+      username,
+      providerId,
+    });
+    return newUser;
+  }
 }

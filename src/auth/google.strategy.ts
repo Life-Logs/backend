@@ -26,9 +26,15 @@ export class GoogleStrategy extends PassportStrategy(Strategy) {
     const providerId = id;
     const email = emails[0].value;
 
+    //유저 정보 저장 or 조회
+    const user: User = await this.usersService.findByEmailOrSave(
+      email,
+      name.givenName + name.givenName,
+      providerId,
+    );
     console.log(providerId, email, name);
 
-    return profile;
+    return user;
     //const { id, name, emails, photos } = profile;
     //const user: Partial<User> = {
     //	googleId: id,
