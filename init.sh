@@ -1,7 +1,7 @@
 #!/bin/sh
 
 source .env
-
+mkdir -p init
 echo "CREATE DATABASE IF NOT EXISTS ${MYSQL_DATABASE};
 USE ${MYSQL_DATABASE};
 CREATE USER IF NOT EXISTS '${MYSQL_USERNAME}' @'%' IDENTIFIED BY '${MYSQL_PASSWORD}';
@@ -14,4 +14,4 @@ CREATE TABLE IF NOT EXISTS user(
     password VARCHAR(200),
     createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     providerId VARCHAR(255)
-);" > init.sql
+);" > ./init/init.sql

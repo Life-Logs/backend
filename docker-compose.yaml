@@ -18,8 +18,8 @@ services:
     ports:
       - '3345:3306'
     volumes:
-      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
-      - ./data:/var/lib/mysql
+      - './init/:/docker-entrypoint-initdb.d/'
+      - './data:/var/lib/mysql'
     tty: true
     networks:
       - lifelog
