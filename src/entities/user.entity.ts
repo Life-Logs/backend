@@ -3,6 +3,7 @@ import {
   Entity,
   PrimaryGeneratedColumn,
   CreateDateColumn,
+  UpdateDateColumn,
 } from 'typeorm';
 
 @Entity()
@@ -13,6 +14,9 @@ export class User {
   @Column({ length: 50, unique: true })
   email: string;
 
+  @Column({ nullable: true })
+  providerId: string;
+
   @Column({ length: 50 })
   username: string;
 
@@ -22,6 +26,6 @@ export class User {
   @CreateDateColumn({ type: 'timestamp' })
   createdAt: Date;
 
-  @Column({ nullable: true })
-  providerId: string;
+  @UpdateDateColumn({ name: 'updated_at', type: 'timestamp' })
+  updatedAt: Date;
 }
