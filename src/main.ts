@@ -5,6 +5,7 @@ import { ConfigService } from '@nestjs/config';
 import * as cookieParser from 'cookie-parser';
 import * as session from 'express-session';
 import * as passport from 'passport';
+import { setupSwagger } from './util/swagger';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -22,6 +23,8 @@ async function bootstrap() {
   //passport 초기화 및 세션 저장소 초기화
   app.use(passport.initialize());
   app.use(passport.session());
+  //swagger 설정
+  setupSwagger(app);
   await app.listen(configService.get('SERVER_PORT'));
 }
 bootstrap();
