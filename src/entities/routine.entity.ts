@@ -24,7 +24,7 @@ export class Routine {
   @Column({ type: 'json' })
   datetime: object;
 
-  @Column({ length: 50, name: 'routine_tag' })
+  @Column({ length: 50, name: 'routine_tag', nullable: true })
   routineTag: string;
 
   @Column({ name: 'actived_at', type: 'timestamp' })
