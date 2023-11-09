@@ -21,8 +21,8 @@ export class Routine {
   @Column({ length: 200, nullable: true })
   type: string;
 
-  @Column({})
-  datetime: JSON;
+  @Column({ type: 'json' })
+  datetime: object;
 
   @Column({ length: 50, name: 'routine_tag' })
   routineTag: string;

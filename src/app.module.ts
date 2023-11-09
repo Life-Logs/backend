@@ -2,12 +2,9 @@ import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ConfigModule } from '@nestjs/config';
-import { UserController } from './user/user.controller';
-import { UserService } from './user/user.service';
 import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { User } from './entities/user.entity';
 import * as path from 'path';
 
 console.log('env : ', process.env.NODE_ENV);
@@ -16,7 +13,7 @@ console.log('env : ', process.env.NODE_ENV);
     ConfigModule.forRoot({
       isGlobal: true,
       cache: true,
-      envFilePath: `${process.cwd()}/envs/${process.env.NODE_ENV}.env`,
+      envFilePath: `${process.cwd()}/src/envs/${process.env.NODE_ENV}.env`,
     }),
     TypeOrmModule.forRoot({
       type: 'mysql',
