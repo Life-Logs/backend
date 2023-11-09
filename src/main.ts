@@ -9,6 +9,10 @@ import { setupSwagger } from './util/swagger';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  app.enableCors({
+    origin: true,
+    credentials: true,
+  }); //cors 허용
   app.useGlobalPipes(new ValidationPipe()); //전역 파이프 설정
   const configService = app.get(ConfigService);
   app.use(cookieParser());
