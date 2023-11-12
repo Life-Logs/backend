@@ -5,6 +5,7 @@ import { ConfigModule } from '@nestjs/config';
 import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { RoutineModule } from './routine/routine.module';
 import * as path from 'path';
 
 console.log('env : ', process.env.NODE_ENV);
@@ -29,6 +30,7 @@ console.log(`${process.cwd()}/envs/${process.env.NODE_ENV}.env`);
     }),
     UserModule,
     AuthModule,
+    RoutineModule,
   ], //전역 모듈로 설정
   controllers: [AppController],
   providers: [AppService],
