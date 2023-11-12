@@ -7,38 +7,55 @@ import {
   Put,
   Delete,
 } from '@nestjs/common';
-import { ApiTags, ApiBody, ApiOkResponse, ApiParam } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiBody,
+  ApiOkResponse,
+  ApiParam,
+  ApiOperation,
+} from '@nestjs/swagger';
 import { UserService } from './user.service';
 import { User } from 'src/entities/user.entity';
-import { CreateUserDto, UpdateUserDto } from './user.dto';
+import { CreateUserDto, UpdateUserDto, UserDto } from './user.dto';
 
 @ApiTags('user')
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  @Post('/create')
+  @Post()
+  @ApiOperation({ summary: '유저 생성' })
+  @ApiOkResponse({ description: '유저 생성 성공', type: User })
   createUser(@Body() user: CreateUserDto) {
     return this.userService.createUser(user);
   }
 
-  @Get('/all')
+  @Get()
+  @ApiOperation({ summary: '모든 유저 조회' })
+  @ApiOkResponse({ description: '모든 유저 조회 성공', type: [UserDto] })
   getAllUsers() {
     return this.userService.getAllUsers();
   }
 
-  @Get('/:email')
-  getUser(@Param('email') email: string) {
-    return this.userService.getUser(email);
+  @Get('/:id')
+  @ApiOperation({ summary: '유저 조회' })
+  @ApiParam({ name: 'id', required: true })
+  getUser(@Param('id') id: number) {
+    return this.userService.getUser(id);
   }
 
-  @Put('/update/:email')
-  updateUser(@Param('email') email: string, @Body() user: UpdateUserDto) {
-    return this.userService.updateUser(email, user);
+  @Put('/:id')
+  @ApiOperation({ summary: '유저 업데이트' })
+  @ApiParam({ name: 'id', required: true })
+  @ApiOkResponse({ description: '유저 업데이트 성공', type: [UpdateUserDto] })
+  updateUser(@Param('id') id: number, @Body() user: UpdateUserDto) {
+    return this.userService.updateUser(id, user);
   }
 
-  @Delete('/delete/:email')
-  deleteUser(@Param('email') email: string) {
-    return this.userService.deleteUser(email);
+  @Delete('/:id')
+  @ApiOperation({ summary: '유저 삭제' })
+  @ApiParam({ name: 'id', required: true })
+  deleteUser(@Param('id') id: number) {
+    return this.userService.deleteUser(id);
   }
 }
