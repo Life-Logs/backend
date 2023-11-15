@@ -70,7 +70,7 @@ export class LocalAuthGuard extends AuthGuard('local') {
 @Injectable()
 export class AuthenticatedGuard implements CanActivate {
   canActivate(context: ExecutionContext): Promise<boolean> {
-    const request = context.switchToHttp().getRequest();
+    const request = context.switchToHttp().getRequest(); //실행 컨텍스트에서 HTTP 요청 객체를 가져옴
     return request.isAuthenticated(); //세션에서 정보 읽어서 인증 확인
   }
 }

@@ -19,7 +19,8 @@ export class SessionSerializer extends PassportSerializer {
     done: (err: Error, payload: string) => void,
   ): Promise<any> {
     // 세션에 저장된 user.id를 통해 사용자 정보 조회
-    const user = await this.userService.getUser(payload);
+    //payload는 세션에 저장된 user.email
+    const user = await this.userService.getUserByEmail(payload);
 
     if (!user) {
       done(new Error('user not found'), null);

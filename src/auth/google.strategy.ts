@@ -15,6 +15,7 @@ export class GoogleStrategy extends PassportStrategy(Strategy) {
     });
   }
 
+  //OAuth2.0 인증 후 실행되는 함수
   async validate(
     accessToken: string,
     refreshToken: string,
@@ -35,15 +36,5 @@ export class GoogleStrategy extends PassportStrategy(Strategy) {
     console.log(providerId, email, name);
 
     return user;
-    //const { id, name, emails, photos } = profile;
-    //const user: Partial<User> = {
-    //	googleId: id,
-    //	firstName: name.givenName,
-    //	lastName: name.familyName,
-    //	email: emails[0].value,
-    //	profilePhoto: photos[0].value,
-    //};
-    //const payload = { user, accessToken };
-    //return this.usersService.loginOrSignUp(payload);
   }
 }
