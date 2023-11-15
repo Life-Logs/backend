@@ -30,11 +30,13 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Get('login') //구글로그인으로 이동
+  @ApiExcludeEndpoint()
   @ApiOperation({ summary: '구글 OAuth 로그인' })
   @UseGuards(GoogleAuthGuard)
   async googleAuth(@Request() req) {}
 
   @Get('google') //구글 로그인 후 콜백함수
+  @ApiExcludeEndpoint()
   @ApiOperation({ summary: '구글 로그인 후 콜백함수' })
   @UseGuards(GoogleAuthGuard)
   async googleAuthRedirect(@Request() req, @Response() res) {
