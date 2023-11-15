@@ -35,7 +35,7 @@ export class UserService {
   async updateUser(id: number, _user: UpdateUserDto) {
     const user: User = await this.getUser(id);
     console.log(_user);
-    user.username = _user.username;
+    user.nickname = _user.nickname;
     console.log(user);
     return await this.userRepository.save(user);
   }
@@ -46,7 +46,7 @@ export class UserService {
   }
 
   //구글 유저 검색 및 생성
-  async findByEmailOrSave(email, username, providerId): Promise<User> {
+  async findByEmailOrSave(email, nickname, providerId): Promise<User> {
     const foundUser = await this.userRepository.findOne({
       where: { email },
     });
@@ -56,7 +56,7 @@ export class UserService {
 
     const newUser = await this.userRepository.save({
       email,
-      username,
+      nickname,
       providerId,
     });
     return newUser;

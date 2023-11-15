@@ -5,31 +5,24 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   DeleteDateColumn,
-  OneToMany,
   ManyToOne,
 } from 'typeorm';
+import { Routine } from './routine.entity';
+import { Tag } from './tag.entity';
 
-import { RoutineTag } from './routine-tag.entity';
-import { User } from './user.entity';
 @Entity()
-export class Tag {
+export class RoutineTag {
   @PrimaryGeneratedColumn()
   id?: number;
 
-  @Column({ name: 'user_id' })
-  userId: number;
+  @Column({ type: 'json' })
+  datetime: object;
 
-  @Column({ length: 50 })
-  name: string;
+  @ManyToOne(() => Routine, (routine) => routine.routineTags)
+  routine: Routine;
 
-  @Column({ name: 'parent_id', length: 200, nullable: true })
-  parentId: string;
-
-  @OneToMany(() => RoutineTag, (routineTag) => routineTag.tagId)
-  routineTags: RoutineTag[];
-
-  @ManyToOne(() => User, (user) => user.tags)
-  user: User;
+  @ManyToOne(() => Tag, (tag) => tag.routineTags)
+  tag: Tag;
 
   @CreateDateColumn({ name: 'created_at', type: 'timestamp' })
   createdAt: Date;

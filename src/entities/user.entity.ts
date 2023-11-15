@@ -4,7 +4,10 @@ import {
   PrimaryGeneratedColumn,
   CreateDateColumn,
   UpdateDateColumn,
+  OneToMany,
 } from 'typeorm';
+import { Tag } from './tag.entity';
+import { Routine } from './routine.entity';
 
 @Entity()
 export class User {
@@ -14,14 +17,17 @@ export class User {
   @Column({ length: 50, unique: true })
   email: string;
 
-  @Column({ nullable: true })
+  @Column({ name: 'google_provider_id', unique: true })
   providerId: string;
 
-  @Column({ length: 50 })
-  username: string;
+  @Column({ name: 'nickname', length: 50 })
+  nickname: string;
 
   @Column({ length: 200, nullable: true })
   password: string;
+
+  @OneToMany(() => Tag, (tag) => tag.userId)
+  tags: Tag[];
 
   @CreateDateColumn({ type: 'timestamp' })
   createdAt: Date;

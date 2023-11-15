@@ -15,7 +15,7 @@ export class CreateUserDto {
 export class UpdateUserDto {
   @ApiProperty({ description: '유저 이름' })
   @IsString()
-  username: string;
+  nickname: string;
 }
 
 export class UserDto {
@@ -29,7 +29,7 @@ export class UserDto {
   providerId: string;
 
   @ApiProperty({ description: '유저 이름' })
-  username: string;
+  nickname: string;
 
   @ApiProperty({ description: '생성된 시간' })
   createdAt: Date;
