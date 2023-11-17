@@ -25,7 +25,7 @@ export class Tag {
   @Column({ name: 'parent_id', length: 200, nullable: true })
   parentId: string;
 
-  @OneToMany(() => RoutineTag, (routineTag) => routineTag.tagId)
+  @OneToMany(() => RoutineTag, (routineTag) => routineTag.tag)
   routineTags: RoutineTag[];
 
   @ManyToOne(() => User, (user) => user.tags)
