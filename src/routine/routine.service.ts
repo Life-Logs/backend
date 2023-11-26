@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { In, Repository } from 'typeorm';
+import { In, Repository, DataSource } from 'typeorm';
 import { Routine } from 'src/entities/routine.entity';
 import { CreateRoutineDto } from './dto/create-routine.dto';
 import { Tag } from 'src/entities/tag.entity';
@@ -15,43 +15,47 @@ export class RoutineService {
     private readonly tagRepository: Repository<Tag>,
     @InjectRepository(RoutineTag)
     private readonly routineTagRepository: Repository<RoutineTag>,
+    private readonly dataSource: DataSource,
   ) {}
 
   async createRoutine(createRoutineDto: CreateRoutineDto) {
+    const queryRunner = this.dataSource.createQueryRunner();
     const { routineTags, ...routineData } = createRoutineDto;
     routineData.userId = 1;
+
     //임시로 userId를 1로 설정
     //routineTags = ['운동', '취미']
-    const tags = await this.tagRepository.find({
-      where: {
-        name: In(routineTags),
-        userId: routineData.userId,
-      },
-    });
 
-    const realRoutionTags = routineTags
-      .filter((tag) => !tags.find((t) => t.name === tag))
-      .map((t) => {
-        return { name: t, userId: routineData.userId };
+    try {
+      await queryRunner.connect();
+      await queryRunner.startTransaction();
+      const existingTags = await this.tagRepository.find({
+        where: {
+          name: In(routineTags),
+          userId: routineData.userId,
+        },
       });
 
-    const createdTags = await this.tagRepository.save(realRoutionTags);
+      const newTags = routineTags
+        .filter((tag) => !existingTags.find((t) => t.name === tag))
+        .map((t) => {
+          return { name: t, userId: routineData.userId };
+        });
 
-    const routine = await this.routineRepository.save(routineData);
+      const routine = await this.routineRepository.save(routineData);
+      const createdTags = await this.tagRepository.save(newTags);
+      const createdRoutineTags = [...createdTags, ...existingTags].map((t) => {
+        return { routineId: routine.id, tagId: t.id };
+      });
 
-    console.log('routinereturn', routine);
-    console.log('tags', createdTags);
-
-    //const routineTagPromises = (await Promise.all(createdTags)).map((tag) =>
-    //  this.routineTagRepository.save({
-    //    routine:routine.id,
-    //    tag: tag.id,
-    //  }),
-    //);
-    console.log(realRoutionTags);
-    console.log(routineData);
-
-    //return routine;
+      await this.routineTagRepository.save(createdRoutineTags);
+      await queryRunner.commitTransaction();
+      return routine;
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+    } finally {
+      await queryRunner.release();
+    }
   }
 
   async getAllRoutines(): Promise<Routine[]> {

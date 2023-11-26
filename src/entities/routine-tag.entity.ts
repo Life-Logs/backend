@@ -15,8 +15,11 @@ export class RoutineTag {
   @PrimaryGeneratedColumn()
   id?: number;
 
-  @Column({ type: 'json' })
-  datetime: object;
+  @Column({ name: 'routine_id' })
+  routineId: number;
+
+  @Column({ name: 'tag_id' })
+  tagId: number;
 
   @ManyToOne(() => Routine, (routine) => routine.routineTags)
   routine: Routine;

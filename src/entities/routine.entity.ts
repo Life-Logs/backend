@@ -15,7 +15,7 @@ export class Routine {
   @PrimaryGeneratedColumn()
   id?: number;
 
-  @Column({ unique: true, name: 'user_id' })
+  @Column({ name: 'user_id' })
   userId: number;
 
   @Column({ length: 50 })
