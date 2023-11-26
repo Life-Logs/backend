@@ -5,6 +5,7 @@ import { Routine } from 'src/entities/routine.entity';
 import { CreateRoutineDto } from './dto/create-routine.dto';
 import { Tag } from 'src/entities/tag.entity';
 import { RoutineTag } from 'src/entities/routine-tag.entity';
+import { query } from 'express';
 
 @Injectable()
 export class RoutineService {
@@ -42,13 +43,17 @@ export class RoutineService {
           return { name: t, userId: routineData.userId };
         });
 
-      const routine = await this.routineRepository.save(routineData);
-      const createdTags = await this.tagRepository.save(newTags);
-      const createdRoutineTags = [...createdTags, ...existingTags].map((t) => {
-        return { routineId: routine.id, tagId: t.id };
+      const routine = this.routineRepository.create(routineData);
+      const createdTags = this.tagRepository.create(newTags);
+      const { id: routineId } = await queryRunner.manager.save(routine);
+      const savedTags = await queryRunner.manager.save(createdTags);
+      const createdRoutineTags = [...savedTags, ...existingTags].map((t) => {
+        return { routineId, tagId: t.id };
       });
 
-      await this.routineTagRepository.save(createdRoutineTags);
+      const createRoutineTags =
+        this.routineTagRepository.create(createdRoutineTags);
+      await queryRunner.manager.save(createRoutineTags);
       await queryRunner.commitTransaction();
       return routine;
     } catch (error) {
