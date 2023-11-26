@@ -9,8 +9,9 @@ import {
 } from 'class-validator';
 
 export class CreateRoutineDto {
-  @IsString()
-  userId: string;
+  @IsOptional()
+  @IsNumber()
+  userId?: number;
 
   @IsString()
   name: string;
@@ -19,6 +20,7 @@ export class CreateRoutineDto {
   @IsString()
   type?: string;
   //카운트, 퍼센트, 체크박스
+  //count, percent, checkbox
 
   @IsObject()
   datetime: object;

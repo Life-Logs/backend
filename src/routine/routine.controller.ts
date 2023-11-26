@@ -16,6 +16,7 @@ import {
 } from '@nestjs/swagger';
 import { RoutineService } from './routine.service';
 import { Routine } from 'src/entities/routine.entity';
+import { CreateRoutineDto } from './dto/create-routine.dto';
 
 @ApiTags('routine')
 @Controller('routine')
@@ -25,7 +26,7 @@ export class RoutineController {
   @Post()
   @ApiOperation({ summary: '루틴 생성' })
   @ApiOkResponse({ description: '루틴 생성 성공', type: Routine })
-  createRoutine(@Body() routine: Routine) {
+  createRoutine(@Body() routine: CreateRoutineDto) {
     return this.routineService.createRoutine(routine);
   }
 

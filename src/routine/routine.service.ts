@@ -17,35 +17,41 @@ export class RoutineService {
     private readonly routineTagRepository: Repository<RoutineTag>,
   ) {}
 
-  async createRoutine(createRoutineDto: CreateRoutineDto): Promise<Routine> {
+  async createRoutine(createRoutineDto: CreateRoutineDto) {
     const { routineTags, ...routineData } = createRoutineDto;
+    routineData.userId = 1;
+    //임시로 userId를 1로 설정
+    //routineTags = ['운동', '취미']
+    const tags = await this.tagRepository.find({
+      where: {
+        name: In(routineTags),
+        userId: routineData.userId,
+      },
+    });
+
+    const realRoutionTags = routineTags
+      .filter((tag) => !tags.find((t) => t.name === tag))
+      .map((t) => {
+        return { name: t, userId: routineData.userId };
+      });
+
+    const createdTags = await this.tagRepository.save(realRoutionTags);
+
     const routine = await this.routineRepository.save(routineData);
 
-    // 태그를 생성하거나 찾아서 루틴과 연결
-    const tags = await Promise.all(
-      routineTags.map(async (tagString) => {
-        const [tagName, parentTagName] = tagString.split('/');
-        const parentTag = parentTagName
-          ? await this.tagRepository.findOne({ where: { name: parentTagName } })
-          : null;
+    console.log('routinereturn', routine);
+    console.log('tags', createdTags);
 
-        const tag = await this.tagRepository.save({
-          name: tagName,
-          parentId: parentTag ? parentTag.id : null,
-        });
+    //const routineTagPromises = (await Promise.all(createdTags)).map((tag) =>
+    //  this.routineTagRepository.save({
+    //    routine:routine.id,
+    //    tag: tag.id,
+    //  }),
+    //);
+    console.log(realRoutionTags);
+    console.log(routineData);
 
-        await this.routineTagRepository.save({
-          routine,
-          tag,
-        });
-
-        return tag;
-      }),
-    );
-
-    routine.routineTags = tags;
-
-    return routine;
+    //return routine;
   }
 
   async getAllRoutines(): Promise<Routine[]> {
