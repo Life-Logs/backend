@@ -47,6 +47,7 @@ export class RoutineService {
       const createdTags = this.tagRepository.create(newTags);
       const { id: routineId } = await queryRunner.manager.save(routine);
       const savedTags = await queryRunner.manager.save(createdTags);
+
       const createdRoutineTags = [...savedTags, ...existingTags].map((t) => {
         return { routineId, tagId: t.id };
       });
@@ -58,6 +59,7 @@ export class RoutineService {
       return routine;
     } catch (error) {
       await queryRunner.rollbackTransaction();
+      throw error;
     } finally {
       await queryRunner.release();
     }
