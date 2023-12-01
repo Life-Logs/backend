@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { SnakeNamingStrategy } from 'typeorm-naming-strategies';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ConfigModule } from '@nestjs/config';
@@ -27,6 +28,7 @@ console.log(`${process.cwd()}/envs/${process.env.NODE_ENV}.env`);
       entities: [path.join(__dirname, '/entities/**.entity{.ts,.js}')],
       synchronize: true,
       logging: true,
+      namingStrategy: new SnakeNamingStrategy(),
     }),
     UserModule,
     AuthModule,
