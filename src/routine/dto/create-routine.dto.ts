@@ -8,6 +8,7 @@ import {
   IsObject,
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
+import { RoutineType } from '../enum/routine-type.enum';
 
 export class CreateRoutineDto {
   //@ApiProperty({ description: '유저 id', example: 1 })
@@ -21,13 +22,11 @@ export class CreateRoutineDto {
 
   @ApiProperty({
     description: '루틴 타입: count, percent, checkbox',
-    example: 'count',
+    enum: RoutineType,
   })
   @IsOptional()
   @IsString()
-  type?: string;
-  //카운트, 퍼센트, 체크박스
-  //count, percent, checkbox
+  type?: RoutineType;
 
   @ApiProperty({
     description: '날짜 및 시간 JSON으로',

@@ -34,7 +34,7 @@ export class Routine {
   goal: number;
 
   @OneToMany(() => RoutineTag, (routineTag) => routineTag.routine)
-  routineTags: string;
+  routineTags: RoutineTag[];
 
   @Column({ name: 'actived_at', type: 'timestamp' })
   activedAt: Date;
