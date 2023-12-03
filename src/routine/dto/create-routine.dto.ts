@@ -1,12 +1,4 @@
-import {
-  IsString,
-  IsOptional,
-  IsBoolean,
-  IsNumber,
-  IsDateString,
-  IsArray,
-  IsObject,
-} from 'class-validator';
+import { IsString, IsOptional, IsBoolean, IsNumber, IsDateString, IsArray, IsObject, IsEnum } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { RoutineType } from '../enum/routine-type.enum';
 
@@ -24,9 +16,8 @@ export class CreateRoutineDto {
     description: '루틴 타입: count, percent, checkbox',
     enum: RoutineType,
   })
-  @IsOptional()
-  @IsString()
-  type?: RoutineType;
+  @IsEnum(RoutineType)
+  type: RoutineType;
 
   @ApiProperty({
     description: '날짜 및 시간 JSON으로',
@@ -69,7 +60,7 @@ export class CreateRoutineDto {
   isActived?: boolean;
 
   @ApiProperty({
-    description: '타입이 count or percent일 경우 목표',
+    description: '타입이 카운트 or 퍼센트일 경우 목표',
     example: 5,
   })
   @IsOptional()

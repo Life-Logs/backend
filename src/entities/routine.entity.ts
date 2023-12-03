@@ -9,11 +9,12 @@ import {
 } from 'typeorm';
 
 import { RoutineTag } from './routine-tag.entity';
+import { RoutineType } from 'src/routine/enum/routine-type.enum';
 
 @Entity()
 export class Routine {
   @PrimaryGeneratedColumn()
-  id?: number;
+  id: number;
 
   @Column({ name: 'user_id' })
   userId: number;
@@ -21,8 +22,8 @@ export class Routine {
   @Column({ length: 50 })
   name: string;
 
-  @Column({ length: 200, nullable: true })
-  type: string;
+  @Column({ length: 200 })
+  type: RoutineType;
 
   @Column({ type: 'json' })
   datetime: object;
@@ -31,7 +32,7 @@ export class Routine {
   isActived: boolean;
 
   @Column({ name: 'goal', nullable: true })
-  goal: number;
+  goal?: number;
 
   @OneToMany(() => RoutineTag, (routineTag) => routineTag.routine)
   routineTags: RoutineTag[];

@@ -6,6 +6,8 @@ import { CreateRoutineDto } from './dto/create-routine.dto';
 import { Tag } from 'src/entities/tag.entity';
 import { RoutineTag } from 'src/entities/routine-tag.entity';
 import { query } from 'express';
+import { RoutineInfoDto } from './dto/routine-info.dto';
+import { RoutineDetailDto } from './dto/routine-detail.dto';
 
 @Injectable()
 export class RoutineService {
@@ -52,8 +54,7 @@ export class RoutineService {
         return { routineId, tagId: t.id };
       });
 
-      const createRoutineTags =
-        this.routineTagRepository.create(createdRoutineTags);
+      const createRoutineTags = this.routineTagRepository.create(createdRoutineTags);
       await queryRunner.manager.save(createRoutineTags);
       await queryRunner.commitTransaction();
       return routine;
@@ -65,19 +66,47 @@ export class RoutineService {
     }
   }
 
-  async getAllRoutines(): Promise<Routine[]> {
-    return this.routineRepository.find();
+  async getAllRoutines(): Promise<RoutineInfoDto[]> {
+    const routines = await this.routineRepository.find({
+      relations: ['routineTags', 'routineTags.tag'],
+      select: {
+        routineTags: {
+          id: true,
+          tag: {
+            id: true,
+            name: true,
+          },
+        },
+      },
+    });
+
+    //인스턴스 없이 사용 가능한 클래스 스태틱 함수
+    return routines.map((e) => RoutineInfoDto.from(e));
   }
 
-  async getRoutine(id: number): Promise<Routine> {
-    return this.routineRepository.findOne({
+  async getRoutine(id: number): Promise<RoutineDetailDto> {
+    const routine = await this.routineRepository.findOne({
       where: { id },
+      relations: ['routineTags', 'routineTags.tag'],
+      select: {
+        routineTags: {
+          id: true,
+          tag: {
+            id: true,
+            name: true,
+          },
+        },
+      },
     });
+
+    return RoutineDetailDto.from(routine);
   }
 
   async updateRoutine(id: number, routine: Routine): Promise<Routine> {
     await this.routineRepository.update(id, routine);
-    return this.getRoutine(id);
+    return this.routineRepository.findOne({
+      where: { id },
+    });
   }
 
   async deleteRoutine(id: number): Promise<void> {
