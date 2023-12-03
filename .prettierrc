@@ -1,5 +1,5 @@
 {
   "singleQuote": true,
   "trailingComma": "all",
-  "printWidth": 120 // 줄바꿈 120 적용을 위해 해당 부분 추가
+  "printWidth": 120
 }
