@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository, DataSource } from 'typeorm';
 import { Routine } from 'src/entities/routine.entity';
@@ -86,7 +86,7 @@ export class RoutineService {
 
   async getRoutine(id: number): Promise<RoutineDetailDto> {
     const routine = await this.routineRepository.findOne({
-      where: { id },
+      where: { id, deletedAt: null },
       relations: ['routineTags', 'routineTags.tag'],
       select: {
         routineTags: {
@@ -98,7 +98,7 @@ export class RoutineService {
         },
       },
     });
-
+    if (!routine) throw new BadRequestException({ message: 'Not found' });
     return RoutineDetailDto.from(routine);
   }
 
@@ -109,7 +109,11 @@ export class RoutineService {
     });
   }
 
-  async deleteRoutine(id: number): Promise<void> {
-    await this.routineRepository.delete(id);
+  async deleteRoutine(id: number): Promise<Routine> {
+    const routine = await this.routineRepository.findOne({
+      where: { id },
+    });
+
+    return await this.routineRepository.softRemove(routine);
   }
 }

@@ -4,6 +4,7 @@ import { RoutineService } from './routine.service';
 import { Routine } from 'src/entities/routine.entity';
 import { CreateRoutineDto } from './dto/create-routine.dto';
 import { RoutineInfoDto } from './dto/routine-info.dto';
+import { RoutineDetailDto } from './dto/routine-detail.dto';
 
 @ApiTags('routine')
 @Controller('routine')
@@ -25,8 +26,8 @@ export class RoutineController {
   }
 
   @Get('/:id')
-  @ApiOperation({ summary: '루틴 조회' })
-  @ApiOkResponse({ description: '루틴 조회 성공', type: Routine })
+  @ApiOperation({ summary: '루틴 상세 조회' })
+  @ApiOkResponse({ description: '루틴 상세 조회 성공', type: RoutineDetailDto })
   @ApiParam({ name: 'id', required: true })
   getRoutine(@Param('id') id: number) {
     return this.routineService.getRoutine(id);
@@ -42,6 +43,7 @@ export class RoutineController {
 
   @Delete('/:id')
   @ApiOperation({ summary: '루틴 삭제' })
+  @ApiOkResponse({ description: '루틴 삭제 성공', type: RoutineDetailDto })
   @ApiParam({ name: 'id', required: true })
   deleteRoutine(@Param('id') id: number) {
     return this.routineService.deleteRoutine(id);
