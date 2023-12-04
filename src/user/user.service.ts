@@ -6,9 +6,7 @@ import { CreateUserDto, UpdateUserDto } from './user.dto';
 
 @Injectable()
 export class UserService {
-  constructor(
-    @InjectRepository(User) private userRepository: Repository<User>,
-  ) {}
+  constructor(@InjectRepository(User) private userRepository: Repository<User>) {}
   //유저 생성
   async createUser(user: CreateUserDto): Promise<User> {
     return await this.userRepository.save(user);
@@ -42,7 +40,10 @@ export class UserService {
 
   //유저 삭제
   async deleteUser(id: number) {
-    return await this.userRepository.delete({ id });
+    const user = await this.userRepository.findOne({
+      where: { id },
+    });
+    return await this.userRepository.softRemove(user);
   }
 
   //구글 유저 검색 및 생성
