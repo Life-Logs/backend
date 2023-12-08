@@ -1,10 +1,11 @@
-import { Controller, Body, Get, Post, Param, Put, Delete } from '@nestjs/common';
+import { Controller, Body, Get, Post, Param, Put, Delete, Patch } from '@nestjs/common';
 import { ApiTags, ApiBody, ApiOkResponse, ApiParam, ApiOperation } from '@nestjs/swagger';
 import { RoutineService } from './routine.service';
 import { Routine } from 'src/entities/routine.entity';
 import { CreateRoutineDto } from './dto/create-routine.dto';
 import { RoutineInfoDto } from './dto/routine-info.dto';
 import { RoutineDetailDto } from './dto/routine-detail.dto';
+import { ToggleActivation } from './dto/routine-activation.dto';
 
 @ApiTags('routine')
 @Controller('routine')
@@ -31,6 +32,14 @@ export class RoutineController {
   @ApiParam({ name: 'id', required: true })
   getRoutine(@Param('id') id: number) {
     return this.routineService.getRoutine(id);
+  }
+
+  @Patch('/:id/toggle-activation')
+  @ApiOperation({ summary: '루틴 활성, 비활성' })
+  @ApiParam({ name: 'id', required: true })
+  @ApiOkResponse({ description: '루틴 활성, 비활성 성공', type: Routine })
+  toogleActivation(@Param('id') id: number, @Body() toggleActivation: ToggleActivation) {
+    return this.routineService.toggleActivation(id, toggleActivation);
   }
 
   @Put('/:id')

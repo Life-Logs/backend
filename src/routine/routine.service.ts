@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository, DataSource } from 'typeorm';
 import { Routine } from 'src/entities/routine.entity';
@@ -8,6 +8,7 @@ import { RoutineTag } from 'src/entities/routine-tag.entity';
 import { query } from 'express';
 import { RoutineInfoDto } from './dto/routine-info.dto';
 import { RoutineDetailDto } from './dto/routine-detail.dto';
+import { ToggleActivation } from './dto/routine-activation.dto';
 
 @Injectable()
 export class RoutineService {
@@ -102,6 +103,17 @@ export class RoutineService {
     return RoutineDetailDto.from(routine);
   }
 
+  async toggleActivation(id: number, toggleActivation: ToggleActivation): Promise<Routine> {
+    const routine = await this.routineRepository.findOne({
+      where: { id },
+    });
+
+    if (!routine) throw new NotFoundException(`Rountine: ${id} not found`);
+
+    routine.isActived = toggleActivation.isActived;
+    return this.routineRepository.save(routine);
+  }
+
   async updateRoutine(id: number, routine: Routine): Promise<Routine> {
     await this.routineRepository.update(id, routine);
     return this.routineRepository.findOne({
@@ -113,7 +125,7 @@ export class RoutineService {
     const routine = await this.routineRepository.findOne({
       where: { id },
     });
-
+    if (!routine) throw new BadRequestException('이미 삭제된 루틴입니다.');
     return await this.routineRepository.softRemove(routine);
   }
 }
