@@ -6,6 +6,7 @@ import { CreateRoutineDto } from './dto/create-routine.dto';
 import { RoutineInfoDto } from './dto/routine-info.dto';
 import { RoutineDetailDto } from './dto/routine-detail.dto';
 import { ToggleActivation } from './dto/routine-activation.dto';
+import { UpdateRoutineDto } from './dto/update-routine.dto';
 
 @ApiTags('routine')
 @Controller('routine')
@@ -46,8 +47,8 @@ export class RoutineController {
   @ApiOperation({ summary: '루틴 업데이트' })
   @ApiParam({ name: 'id', required: true })
   @ApiOkResponse({ description: '루틴 업데이트 성공', type: Routine })
-  updateRoutine(@Param('id') id: number, @Body() routine: Routine) {
-    return this.routineService.updateRoutine(id, routine);
+  updateRoutine(@Param('id') id: number, @Body() updateRoutineDto: UpdateRoutineDto) {
+    return this.routineService.updateRoutine(id, updateRoutineDto);
   }
 
   @Delete('/:id')

@@ -9,6 +9,7 @@ import { query } from 'express';
 import { RoutineInfoDto } from './dto/routine-info.dto';
 import { RoutineDetailDto } from './dto/routine-detail.dto';
 import { ToggleActivation } from './dto/routine-activation.dto';
+import { UpdateRoutineDto } from './dto/update-routine.dto';
 
 @Injectable()
 export class RoutineService {
@@ -114,8 +115,14 @@ export class RoutineService {
     return this.routineRepository.save(routine);
   }
 
-  async updateRoutine(id: number, routine: Routine): Promise<Routine> {
-    await this.routineRepository.update(id, routine);
+  async updateRoutine(id: number, updateRoutineDto: UpdateRoutineDto): Promise<Routine> {
+    const { routineTags, ...others } = updateRoutineDto;
+    if (!routineTags) {
+      let updateRoutineInfo: Omit<UpdateRoutineDto, 'routineTags'> = { ...others };
+      await this.routineRepository.update(id, updateRoutineInfo);
+    } else {
+    }
+
     return this.routineRepository.findOne({
       where: { id },
     });
