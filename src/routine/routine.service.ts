@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { In, Repository, DataSource } from 'typeorm';
+import { In, Repository, DataSource, Not } from 'typeorm';
 import { Routine } from 'src/entities/routine.entity';
 import { CreateRoutineDto } from './dto/create-routine.dto';
 import { Tag } from 'src/entities/tag.entity';
@@ -121,6 +121,43 @@ export class RoutineService {
       let updateRoutineInfo: Omit<UpdateRoutineDto, 'routineTags'> = { ...others };
       await this.routineRepository.update(id, updateRoutineInfo);
     } else {
+      //태그가 들어옴
+      //가정
+      //기존태그 칼퇴, <회사>
+      //신규태그 칼퇴, (공부) => routineTags
+      const existingTags = await this.tagRepository.find({
+        where: {
+          name: In(routineTags),
+          userId: 1, //임시로 1
+          routineTags: { routineId: id },
+        },
+        relations: ['routineTags'],
+      });
+      //-> 칼퇴
+
+      const notTags = await this.routineTagRepository.find({
+        where: {
+          routineId: id,
+          tag: { userId: 1, name: Not(In(routineTags)) },
+        },
+        relations: ['tag'],
+      });
+      //->회사
+
+      //신규태그는 태그테이블 생성하고, 루틴태그테이블에 생성해야함
+      const newTags = routineTags
+        .filter((tag) => !existingTags.find((t) => t.name === tag))
+        .map((t) => {
+          return { name: t, userId: 1 };
+        });
+      //-> 공부
+      const createTags = await this.tagRepository.save(newTags);
+      await this.routineTagRepository.softRemove(notTags);
+
+      const createdRoutineTags = createTags.map((t) => {
+        return { routineId: id, tagId: t.id };
+      });
+      await this.routineTagRepository.save(createdRoutineTags);
     }
 
     return this.routineRepository.findOne({
