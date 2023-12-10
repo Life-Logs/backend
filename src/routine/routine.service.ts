@@ -117,10 +117,7 @@ export class RoutineService {
 
   async updateRoutine(id: number, updateRoutineDto: UpdateRoutineDto): Promise<Routine> {
     const { routineTags, ...others } = updateRoutineDto;
-    if (!routineTags) {
-      let updateRoutineInfo: Omit<UpdateRoutineDto, 'routineTags'> = { ...others };
-      await this.routineRepository.update(id, updateRoutineInfo);
-    } else {
+    if (routineTags) {
       //태그가 들어옴
       //가정
       //기존태그 칼퇴, <회사>
@@ -159,6 +156,8 @@ export class RoutineService {
       });
       await this.routineTagRepository.save(createdRoutineTags);
     }
+    const updateRoutineInfo: Omit<UpdateRoutineDto, 'routineTags'> = { ...others };
+    await this.routineRepository.update(id, updateRoutineInfo);
 
     return this.routineRepository.findOne({
       where: { id },
