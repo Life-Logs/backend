@@ -6,10 +6,11 @@ import { GoogleStrategy } from './google.strategy';
 import { PassportModule } from '@nestjs/passport';
 import { SessionSerializer } from './session.serializer';
 import { LocalStrategy } from './local.strategy';
+import { JwtKakaoStrategy } from './jwt-social-kakao.strategy';
 @Module({
   //providers: [AuthService, GoogleStrategy],
   imports: [UserModule, PassportModule.register({ session: true })],
-  providers: [AuthService, LocalStrategy, SessionSerializer, GoogleStrategy],
+  providers: [AuthService, LocalStrategy, SessionSerializer, GoogleStrategy, JwtKakaoStrategy],
   controllers: [AuthController],
 })
 export class AuthModule {}

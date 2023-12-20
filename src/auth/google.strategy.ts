@@ -16,11 +16,7 @@ export class GoogleStrategy extends PassportStrategy(Strategy) {
   }
 
   //OAuth2.0 인증 후 실행되는 함수
-  async validate(
-    accessToken: string,
-    refreshToken: string,
-    profile: Profile,
-  ): Promise<any> {
+  async validate(accessToken: string, refreshToken: string, profile: Profile): Promise<any> {
     const { id, name, emails } = profile;
     console.log(accessToken, refreshToken, profile);
 
@@ -28,11 +24,9 @@ export class GoogleStrategy extends PassportStrategy(Strategy) {
     const email = emails[0].value;
 
     //유저 정보 저장 or 조회
-    const user: User = await this.usersService.findByEmailOrSave(
-      email,
-      name.givenName + name.givenName,
-      providerId,
-    );
+    //const existsUser = await this.usersService.getUserByEmail(email);
+
+    const user: User = await this.usersService.findByEmailOrSave(email, name.givenName + name.givenName, providerId);
     console.log(providerId, email, name);
 
     return user;

@@ -1,5 +1,4 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { CreateUserDto } from 'src/user/user.dto';
 import { UserService } from 'src/user/user.service';
 import * as bcrypt from 'bcrypt';
 
@@ -20,5 +19,20 @@ export class AuthService {
       return userInfo;
     }
     return null;
+  }
+
+  async OAuthLogin({ req, res }) {
+    //회원 조회
+    console.log(req.user);
+    let user = await this.userSerivice.getUserByEmail(req.user.email);
+
+    //회원이 없다면 가입
+    if (!user) {
+      user = await this.userSerivice.createUser(req.user);
+    }
+
+    //로그인(accessToken, refreshToken 생성 후 리턴
+    //this.setRefreshToken({ user, res });
+    res.redirect('http://localhost:3000');
   }
 }

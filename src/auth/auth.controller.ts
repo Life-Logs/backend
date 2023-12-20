@@ -1,29 +1,19 @@
-import {
-  Body,
-  Controller,
-  Get,
-  Post,
-  Request,
-  Res,
-  Response,
-  UseGuards,
-} from '@nestjs/common';
-import {
-  ApiTags,
-  ApiBody,
-  ApiOkResponse,
-  ApiParam,
-  ApiOperation,
-  ApiExcludeEndpoint,
-} from '@nestjs/swagger';
-import { CreateUserDto } from 'src/user/user.dto';
+import { Body, Controller, Get, Header, Post, Query, Req, Request, Res, Response, UseGuards } from '@nestjs/common';
+import { ApiTags, ApiBody, ApiOkResponse, ApiParam, ApiOperation, ApiExcludeEndpoint } from '@nestjs/swagger';
+import { CreateUserDto } from 'src/user/dto/user.dto';
 import { AuthService } from './auth.service';
-import {
-  LoginGuard,
-  AuthenticatedGuard,
-  LocalAuthGuard,
-  GoogleAuthGuard,
-} from './auth.guard';
+import { LoginGuard, AuthenticatedGuard, LocalAuthGuard, GoogleAuthGuard } from './auth.guard';
+import { Response as ExpressRes } from 'express';
+import { AuthGuard } from '@nestjs/passport';
+import { JwtKakaoStrategy } from './jwt-social-kakao.strategy';
+
+interface IOAuthUser {
+  user: {
+    name: string;
+    email: string;
+    password: string;
+  };
+}
 @Controller('auth')
 @ApiTags('auth')
 export class AuthController {
@@ -42,6 +32,13 @@ export class AuthController {
   async googleAuthRedirect(@Request() req, @Response() res) {
     const { user } = req;
     return res.send(user);
+  }
+
+  @Get('kakao')
+  @UseGuards(AuthGuard('kakao'))
+  async loginKakao(@Req() req: ExpressRes & IOAuthUser, @Res() res: Response) {
+    console.log(req);
+    this.authService.OAuthLogin({ req, res });
   }
 
   //@UseGuards(LoginGuard) //LoginGuard 사용
