@@ -5,7 +5,6 @@ import { AuthService } from './auth.service';
 import { LoginGuard, AuthenticatedGuard, LocalAuthGuard, GoogleAuthGuard } from './auth.guard';
 import { Response as ExpressRes } from 'express';
 import { AuthGuard } from '@nestjs/passport';
-import { JwtKakaoStrategy } from './jwt-social-kakao.strategy';
 
 interface IOAuthUser {
   user: {
@@ -36,9 +35,11 @@ export class AuthController {
 
   @Get('kakao')
   @UseGuards(AuthGuard('kakao'))
-  async loginKakao(@Req() req: ExpressRes & IOAuthUser, @Res() res: Response) {
+  async loginKakao(@Req() req: ExpressRes & IOAuthUser, @Res() res: ExpressRes) {
     console.log(req);
-    this.authService.OAuthLogin({ req, res });
+    const { accessToken, refreshToken } = await this.authService.OAuthLogin({ req, res });
+    res.cookie('accessToken', accessToken, { httpOnly: true });
+    return res.redirect('http://localhost:3000');
   }
 
   //@UseGuards(LoginGuard) //LoginGuard 사용

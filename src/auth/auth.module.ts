@@ -6,11 +6,25 @@ import { GoogleStrategy } from './google.strategy';
 import { PassportModule } from '@nestjs/passport';
 import { SessionSerializer } from './session.serializer';
 import { LocalStrategy } from './local.strategy';
-import { JwtKakaoStrategy } from './jwt-social-kakao.strategy';
+import { KakaoStrategy } from './kakao.strategy';
+import { JwtModule } from '@nestjs/jwt';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { JwtStrategy } from './jwt.strategy';
 @Module({
   //providers: [AuthService, GoogleStrategy],
-  imports: [UserModule, PassportModule.register({ session: true })],
-  providers: [AuthService, LocalStrategy, SessionSerializer, GoogleStrategy, JwtKakaoStrategy],
+  imports: [
+    UserModule,
+    PassportModule.register({ session: true }),
+    JwtModule.registerAsync({
+      imports: [ConfigModule],
+      useFactory: async (configService: ConfigService) => ({
+        secret: configService.get<string>('JWT_SECRET'),
+        signOptions: { expiresIn: configService.get<string>('JWT_EXPIRES_IN') },
+      }),
+      inject: [ConfigService],
+    }),
+  ],
+  providers: [AuthService, LocalStrategy, SessionSerializer, GoogleStrategy, KakaoStrategy, JwtStrategy],
   controllers: [AuthController],
 })
 export class AuthModule {}
