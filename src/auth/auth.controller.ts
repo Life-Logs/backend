@@ -34,7 +34,7 @@ export class AuthController {
   }
 
   @Get('kakao')
-  @UseGuards(AuthGuard('kakao'))
+  //@UseGuards(AuthGuard('kakao'))
   async loginKakao(@Req() req: ExpressRes & IOAuthUser, @Res() res: ExpressRes) {
     console.log(req);
     const { accessToken, refreshToken } = await this.authService.OAuthLogin({ req, res });
@@ -42,26 +42,48 @@ export class AuthController {
     return res.redirect('http://localhost:3000');
   }
 
-  //@UseGuards(LoginGuard) //LoginGuard 사용
-  //@Post('login')
-  //@ApiOperation({ summary: '로그인' })
-  //async login2(@Request() req, @Response() res) {
-  //  //쿠키 정보는 없지만 request에 user 정보가 있다면 응답값에 쿠키 정보 추가
-  //  if (!req.cookies['login'] && req.user) {
-  //    // 응답에 쿠키 정보 추가
-  //    res.cookie('login', JSON.stringify(req.user), {
-  //      httpOnly: true,
-  //      // maxAge: 1000 * 60 * 60 * 24 * 7, // 1day
-  //      maxAge: 1000 * 10 * 60, //로그인 테스트를 고려해 10초로 설정
-  //    });
-  //  }
-  //  return res.send({ message: 'login success' });
-  //}
-
   @UseGuards(AuthenticatedGuard)
   @Get('cookie-validation')
+  @ApiExcludeEndpoint()
   @ApiOperation({ summary: '쿠키 유효성 체크' })
   testGuardWithSession(@Request() req) {
     return req.user;
+  }
+
+  @ApiOperation({ summary: '카카오 토큰 받아오기' })
+  @Post('/login-test')
+  async login(@Body() body: any, @Response() res): Promise<any> {
+    try {
+      // 카카오 토큰 조회 후 계정 정보 가져오기
+
+      const { code, domain } = body;
+      if (!code || !domain) {
+        //throw new BadRequestException('카카오 정보가 없습니다.');
+        throw new Error('not found');
+      }
+      const kakao = await this.authService.kakaoLogin({ code, domain });
+
+      console.log(`kakaoUserInfo : ${JSON.stringify(kakao)}`);
+      if (!kakao.id) {
+        //throw new BadRequestException('카카오 정보가 없습니다.');
+        throw new Error('not found');
+      }
+
+      res.send({
+        user: kakao,
+        message: 'success',
+      });
+    } catch (e) {
+      console.log(e);
+      //throw new UnauthorizedException();
+      throw new Error('401');
+    }
+  }
+
+  @ApiOperation({ summary: '카카오 테스트 코드받아오기' })
+  @Get('/tkim')
+  async tkim(@Req() req: ExpressRes, @Res() res: ExpressRes) {
+    const url = `https://kauth.kakao.com/oauth/authorize?response_type=code&client_id=${process.env.KAKAO_CLIENT_ID}&redirect_uri=${process.env.KAKAO_CALLBACK_URL}`;
+    return res.redirect(url);
   }
 }

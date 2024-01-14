@@ -8,13 +8,13 @@ services:
     hostname: lifelog_mysql
     restart: always
     env_file:
-      - ./.env
-    environment:
-      - TZ=Asia/Seoul
-      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
-      - MYSQL_DATABASE=${MYSQL_DATABASE}
-      - MYSQL_USER=${MYSQL_USERNAME}
-      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+      - ./envs/prod.env
+    #environment:
+    #  - TZ=Asia/Seoul
+    #  - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+    #  - MYSQL_DATABASE=${MYSQL_DATABASE}
+    #  - MYSQL_USER=${MYSQL_USERNAME}
+    #  - MYSQL_PASSWORD=${MYSQL_PASSWORD}
     ports:
       - '3345:3306'
     volumes:
@@ -24,37 +24,37 @@ services:
     networks:
       - lifelog
 
-  lifelog_backend:
-    depends_on:
-      - mysql
-    build: .
-    restart: always
-    ports:
-      - '3000:3000'
-    environment:
-      TZ: Asia/Seoul
-    volumes:
-      - ./package.json:/backend/package.json
-      - ./src:/backend/src
-      - ./.env:/backend/.env
-    networks:
-      - lifelog
-    tty: true
-
-  #nginx:
-  #  image: nginx
+  #lifelog_backend:
   #  depends_on:
-  #    - backend
+  #    - mysql
+  #  build: .
   #  restart: always
   #  ports:
-  #    - '${NGINX_PORT}:80'
+  #    - '3000:3000'
   #  environment:
   #    TZ: Asia/Seoul
   #  volumes:
-  #    - ./nginx.conf:/etc/nginx/nginx.conf
+  #    - ./package.json:/backend/package.json
+  #    - ./src:/backend/src
+  #    - ./.env:/backend/.env
   #  networks:
   #    - lifelog
   #  tty: true
+
+  ##nginx:
+  ##  image: nginx
+  ##  depends_on:
+  ##    - backend
+  ##  restart: always
+  ##  ports:
+  ##    - '${NGINX_PORT}:80'
+  ##  environment:
+  ##    TZ: Asia/Seoul
+  ##  volumes:
+  ##    - ./nginx.conf:/etc/nginx/nginx.conf
+  ##  networks:
+  ##    - lifelog
+  ##  tty: true
 
 networks:
   lifelog:

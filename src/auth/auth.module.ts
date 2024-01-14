@@ -11,7 +11,6 @@ import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtStrategy } from './jwt.strategy';
 @Module({
-  //providers: [AuthService, GoogleStrategy],
   imports: [
     UserModule,
     PassportModule.register({ session: true }),
