@@ -1,8 +1,9 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, UnauthorizedException } from '@nestjs/common';
 import { UserService } from 'src/user/user.service';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import axios from 'axios';
+import { kakaoLoginDto } from './dto/kakao-login.dto';
 
 @Injectable()
 export class AuthService {
@@ -34,11 +35,6 @@ export class AuthService {
       user = await this.userSerivice.createUser(req.user);
     }
 
-    //로그인(accessToken, refreshToken 생성 후 리턴
-    //this.setRefreshToken({ user, res });
-    //cookie -> AT, RT
-    //res.redirect('http://localhost:3000'); //FE URL
-
     const accessToken = this.generateAccessToken(user);
     const refreshToken = {};
     //const refreshToken = await this.generateRefreshToken(user);
@@ -56,79 +52,58 @@ export class AuthService {
     return this.jwtService.sign(payload);
   }
 
-  async kakaoLogin(options: { code: string; domain: string }): Promise<any> {
-    const { code, domain } = options;
-    const kakaoKey = process.env.KAKAO_CLIENT_ID;
-    const kakaoSecret = process.env.KAKAO_CLIENT_SECRET;
-    const kakaoTokenUrl = process.env.KAKAO_TOKEN_URL;
-    const kakaoUserInfoUrl = process.env.KAKAO_USER_INFO_URL;
-    const body = {
-      grant_type: 'authorization_code',
-      client_id: kakaoKey,
-      client_secret: kakaoSecret,
-      redirect_uri: process.env.KAKAO_CALLBACK_URL,
-      code,
-    };
-    const headers = {
-      'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8',
-    };
-
+  async kakaoLogin(kakaoLoginDto: kakaoLoginDto): Promise<any> {
     try {
-      const response = await axios({
-        method: 'POST',
-        url: kakaoTokenUrl,
-        timeout: 30000,
-        headers,
-        data: body,
-      });
-      if (response.status === 200) {
-        console.log(`kakaoToken : ${JSON.stringify(response.data)}`);
-        // Token 을 가져왔을 경우 사용자 정보 조회
-        const headerUserInfo = {
-          'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8',
-          Authorization: 'Bearer ' + response.data.access_token,
-        };
-        console.log(`url : ${kakaoTokenUrl}`);
-        console.log(`headers : ${JSON.stringify(headerUserInfo)}`);
-        const responseUserInfo = await axios({
-          method: 'GET',
-          url: kakaoUserInfoUrl,
-          timeout: 30000,
-          headers: headerUserInfo,
-        });
-        console.log(`responseUserInfo.status : ${responseUserInfo.status}`);
-        if (responseUserInfo.status === 200) {
-          console.log(`kakaoUserInfo : ${JSON.stringify(responseUserInfo.data)}`);
-          //회원가입 로직 추가
-          //kakao_account
-          const email = responseUserInfo.data.kakao_account.email;
-          const password = responseUserInfo.data.id;
-          const name = responseUserInfo.data.kakao_account.profile.nickname;
-          let user = await this.userSerivice.getUserByEmail(email);
+      const user = await this.getUserByKakaoAccessToken(kakaoLoginDto.accessToken);
 
-          //회원이 없다면 가입
-          if (!user) {
-            const data = {
-              email,
-              password,
-              name,
-            };
-            user = await this.userSerivice.createUser(data);
-          }
-
-          return user;
-        } else {
-          //throw new UnauthorizedException();
-          throw new Error('401');
-        }
-      } else {
-        //throw new UnauthorizedException();
-        throw new Error('401');
+      if (!user) {
+        throw new UnauthorizedException();
       }
+
+      const accessToken = this.generateAccessToken(user);
+
+      return {
+        userid: user.id,
+        accessToken,
+      };
     } catch (error) {
       console.log(error);
-      //throw new UnauthorizedException();
-      throw new Error('401');
     }
+  }
+
+  async getUserByKakaoAccessToken(accessToken: string) {
+    //카카오 토큰으로 유저 조회
+    const kakaoUserInfoUrl = process.env.KAKAO_USER_INFO_URL;
+    const headerUserInfo = {
+      'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8',
+      Authorization: 'Bearer ' + accessToken,
+    };
+    const responseUserInfo = await axios({
+      method: 'GET',
+      url: kakaoUserInfoUrl,
+      timeout: 30000,
+      headers: headerUserInfo,
+    });
+
+    if (!responseUserInfo) throw new UnauthorizedException();
+
+    //회원가입 로직 추가
+    //kakao_account
+    const email = responseUserInfo.data.kakao_account.email;
+    const password = responseUserInfo.data.id;
+    const name = responseUserInfo.data.kakao_account.profile.nickname;
+    let user = await this.userSerivice.getUserByEmail(email);
+
+    //회원이 없다면 가입
+    if (!user) {
+      const data = {
+        email,
+        password,
+        name,
+      };
+      user = await this.userSerivice.createUser(data);
+    }
+
+    return user;
   }
 }

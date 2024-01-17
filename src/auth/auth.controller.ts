@@ -5,6 +5,7 @@ import { AuthService } from './auth.service';
 import { LoginGuard, AuthenticatedGuard, LocalAuthGuard, GoogleAuthGuard } from './auth.guard';
 import { Response as ExpressRes } from 'express';
 import { AuthGuard } from '@nestjs/passport';
+import { kakaoLoginDto } from './dto/kakao-login.dto';
 
 interface IOAuthUser {
   user: {
@@ -34,7 +35,7 @@ export class AuthController {
   }
 
   @Get('kakao')
-  //@UseGuards(AuthGuard('kakao'))
+  @UseGuards(AuthGuard('kakao'))
   async loginKakao(@Req() req: ExpressRes & IOAuthUser, @Res() res: ExpressRes) {
     console.log(req);
     const { accessToken, refreshToken } = await this.authService.OAuthLogin({ req, res });
@@ -50,40 +51,46 @@ export class AuthController {
     return req.user;
   }
 
-  @ApiOperation({ summary: '카카오 토큰 받아오기' })
-  @Post('/login-test')
-  async login(@Body() body: any, @Response() res): Promise<any> {
-    try {
-      // 카카오 토큰 조회 후 계정 정보 가져오기
+  //@ApiOperation({ summary: '카카오 토큰 받아오기' })
+  //@Post('/login-test')
+  //async login(@Body() body: any, @Response() res): Promise<any> {
+  //  try {
+  //    // 카카오 토큰 조회 후 계정 정보 가져오기
 
-      const { code, domain } = body;
-      if (!code || !domain) {
-        //throw new BadRequestException('카카오 정보가 없습니다.');
-        throw new Error('not found');
-      }
-      const kakao = await this.authService.kakaoLogin({ code, domain });
+  //    const { code, domain } = body;
+  //    if (!code || !domain) {
+  //      //throw new BadRequestException('카카오 정보가 없습니다.');
+  //      throw new Error('not found');
+  //    }
+  //    const kakao = await this.authService.kakaoLogin({ code, domain });
 
-      console.log(`kakaoUserInfo : ${JSON.stringify(kakao)}`);
-      if (!kakao.id) {
-        //throw new BadRequestException('카카오 정보가 없습니다.');
-        throw new Error('not found');
-      }
+  //    console.log(`kakaoUserInfo : ${JSON.stringify(kakao)}`);
+  //    if (!kakao.id) {
+  //      //throw new BadRequestException('카카오 정보가 없습니다.');
+  //      throw new Error('not found');
+  //    }
 
-      res.send({
-        user: kakao,
-        message: 'success',
-      });
-    } catch (e) {
-      console.log(e);
-      //throw new UnauthorizedException();
-      throw new Error('401');
-    }
-  }
+  //    res.send({
+  //      user: kakao,
+  //      message: 'success',
+  //    });
+  //  } catch (e) {
+  //    console.log(e);
+  //    //throw new UnauthorizedException();
+  //    throw new Error('401');
+  //  }
+  //}
 
   @ApiOperation({ summary: '카카오 테스트 코드받아오기' })
   @Get('/tkim')
   async tkim(@Req() req: ExpressRes, @Res() res: ExpressRes) {
     const url = `https://kauth.kakao.com/oauth/authorize?response_type=code&client_id=${process.env.KAKAO_CLIENT_ID}&redirect_uri=${process.env.KAKAO_CALLBACK_URL}`;
     return res.redirect(url);
+  }
+
+  @ApiOperation({ summary: '카카오 토큰으로 로그인' })
+  @Post('/login')
+  async kakaoLogin(@Body() kakaoLoginDto: kakaoLoginDto): Promise<any> {
+    return this.authService.kakaoLogin(kakaoLoginDto);
   }
 }
