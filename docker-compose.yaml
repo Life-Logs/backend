@@ -24,22 +24,21 @@ services:
     networks:
       - lifelog
 
-  #lifelog_backend:
-  #  depends_on:
-  #    - mysql
-  #  build: .
-  #  restart: always
-  #  ports:
-  #    - '3000:3000'
-  #  environment:
-  #    TZ: Asia/Seoul
-  #  volumes:
-  #    - ./package.json:/backend/package.json
-  #    - ./src:/backend/src
-  #    - ./.env:/backend/.env
-  #  networks:
-  #    - lifelog
-  #  tty: true
+  lifelog_backend:
+    depends_on:
+      - mysql
+    build: .
+    restart: always
+    ports:
+      - '3000:3000'
+    environment:
+      TZ: Asia/Seoul
+    volumes:
+      - ./package.json:/backend/package.json
+      - ./src:/backend/src
+    networks:
+      - lifelog
+    tty: true
 
   ##nginx:
   ##  image: nginx
