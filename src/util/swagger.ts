@@ -1,13 +1,23 @@
 import { INestApplication } from '@nestjs/common';
-import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+import { SwaggerModule, DocumentBuilder, SwaggerCustomOptions } from '@nestjs/swagger';
 
 export function setupSwagger(app: INestApplication): void {
   const config = new DocumentBuilder()
     .setTitle('Life-Logs API Docs')
     .setDescription('Life-logs API description')
     .setVersion('1.0')
-    .addCookieAuth('connect.sid')
+    .addBearerAuth({
+      type: 'http',
+      scheme: 'bearer',
+      name: 'JWT',
+      in: 'header',
+    })
     .build();
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api-docs', app, document);
+  const swaggerCustomOption: SwaggerCustomOptions = {
+    swaggerOptions: {
+      persistAuthorization: true,
+    },
+  };
+  SwaggerModule.setup('api-docs', app, document, swaggerCustomOption);
 }
