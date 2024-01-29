@@ -2,10 +2,11 @@ import { Body, Controller, Get, Header, Post, Query, Req, Request, Res, Response
 import { ApiTags, ApiBody, ApiOkResponse, ApiParam, ApiOperation, ApiExcludeEndpoint } from '@nestjs/swagger';
 import { CreateUserDto } from 'src/user/dto/user.dto';
 import { AuthService } from './auth.service';
-import { LoginGuard, AuthenticatedGuard, LocalAuthGuard, GoogleAuthGuard } from './auth.guard';
+import { LoginGuard, AuthenticatedGuard, LocalAuthGuard, GoogleAuthGuard } from './guard/auth.guard';
 import { Response as ExpressRes } from 'express';
 import { AuthGuard } from '@nestjs/passport';
-import { kakaoLoginDto } from './dto/kakao-login.dto';
+import { TempLoginDto, kakaoLoginDto } from './dto/kakao-login.dto';
+import { SignupDto } from './dto/signup.dto';
 
 interface IOAuthUser {
   user: {
@@ -51,36 +52,6 @@ export class AuthController {
     return req.user;
   }
 
-  //@ApiOperation({ summary: '카카오 토큰 받아오기' })
-  //@Post('/login-test')
-  //async login(@Body() body: any, @Response() res): Promise<any> {
-  //  try {
-  //    // 카카오 토큰 조회 후 계정 정보 가져오기
-
-  //    const { code, domain } = body;
-  //    if (!code || !domain) {
-  //      //throw new BadRequestException('카카오 정보가 없습니다.');
-  //      throw new Error('not found');
-  //    }
-  //    const kakao = await this.authService.kakaoLogin({ code, domain });
-
-  //    console.log(`kakaoUserInfo : ${JSON.stringify(kakao)}`);
-  //    if (!kakao.id) {
-  //      //throw new BadRequestException('카카오 정보가 없습니다.');
-  //      throw new Error('not found');
-  //    }
-
-  //    res.send({
-  //      user: kakao,
-  //      message: 'success',
-  //    });
-  //  } catch (e) {
-  //    console.log(e);
-  //    //throw new UnauthorizedException();
-  //    throw new Error('401');
-  //  }
-  //}
-
   @ApiOperation({ summary: '카카오 테스트 코드받아오기' })
   @Get('/tkim')
   async tkim(@Req() req: ExpressRes, @Res() res: ExpressRes) {
@@ -92,5 +63,17 @@ export class AuthController {
   @Post('/login')
   async kakaoLogin(@Body() kakaoLoginDto: kakaoLoginDto): Promise<any> {
     return this.authService.kakaoLogin(kakaoLoginDto);
+  }
+
+  @ApiOperation({ summary: '유저 임시 생성' })
+  @Post('/signup')
+  async signup(@Body() signupDto: SignupDto): Promise<any> {
+    return this.authService.signup(signupDto);
+  }
+
+  @ApiOperation({ summary: '임시 로그인' })
+  @Post('/temp-login')
+  async tempLogin(@Body() tempLoginDto: TempLoginDto): Promise<any> {
+    return this.authService.tempLogin(tempLoginDto);
   }
 }

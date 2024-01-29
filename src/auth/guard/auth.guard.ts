@@ -1,10 +1,5 @@
-import {
-  CanActivate,
-  ExecutionContext,
-  Inject,
-  Injectable,
-} from '@nestjs/common';
-import { AuthService } from './auth.service';
+import { CanActivate, ExecutionContext, Inject, Injectable } from '@nestjs/common';
+import { AuthService } from '../auth.service';
 import { AuthGuard } from '@nestjs/passport';
 import { Observable } from 'rxjs';
 
@@ -40,10 +35,7 @@ export class LoginGuard implements CanActivate {
     }
 
     //인증 로직은 기존의 authService.validateUser를 사용한다.
-    const user = await this.authService.validateUser(
-      request.body.email,
-      request.body.password,
-    );
+    const user = await this.authService.validateUser(request.body.email, request.body.password);
 
     // 유저 정보가 없으면 false를 반환
     if (!user) {

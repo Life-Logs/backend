@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsString } from 'class-validator';
+import { IsEmail, IsNotEmpty, IsString } from 'class-validator';
 
 export class kakaoLoginDto {
   @ApiProperty({
@@ -18,4 +18,18 @@ export class kakaoLoginDto {
   //  @IsNotEmpty()
   //  @IsString()
   //  vendor!: string;
+}
+
+export class TempLoginDto {
+  @ApiProperty({
+    example: 'abc@abc.com',
+    description: '이메일',
+  })
+  @IsNotEmpty()
+  @IsEmail()
+  email!: string;
+
+  @ApiProperty({ description: '비밀번호', example: '12341234' })
+  @IsString()
+  password: string;
 }

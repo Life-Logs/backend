@@ -23,10 +23,10 @@ export class RoutineService {
     private readonly dataSource: DataSource,
   ) {}
 
-  async createRoutine(createRoutineDto: CreateRoutineDto) {
+  async createRoutine(id: number, createRoutineDto: CreateRoutineDto) {
     const queryRunner = this.dataSource.createQueryRunner();
     const { routineTags, ...routineData } = createRoutineDto;
-    routineData.userId = 1;
+    routineData.userId = id;
 
     //임시로 userId를 1로 설정
     //routineTags = ['운동', '취미']
@@ -68,7 +68,7 @@ export class RoutineService {
     }
   }
 
-  async getAllRoutines(): Promise<RoutineInfoDto[]> {
+  async getAllRoutines(id): Promise<RoutineInfoDto[]> {
     const routines = await this.routineRepository.find({
       relations: ['routineTags', 'routineTags.tag'],
       select: {
@@ -80,15 +80,18 @@ export class RoutineService {
           },
         },
       },
+      where: {
+        id: id,
+      },
     });
 
     //인스턴스 없이 사용 가능한 클래스 스태틱 함수
     return routines.map((e) => RoutineInfoDto.from(e));
   }
 
-  async getRoutine(id: number): Promise<RoutineDetailDto> {
+  async getRoutine(userId: number, id: number): Promise<RoutineDetailDto> {
     const routine = await this.routineRepository.findOne({
-      where: { id, deletedAt: null },
+      where: { id, deletedAt: null, userId },
       relations: ['routineTags', 'routineTags.tag'],
       select: {
         routineTags: {
@@ -104,9 +107,9 @@ export class RoutineService {
     return RoutineDetailDto.from(routine);
   }
 
-  async toggleActivation(id: number, toggleActivation: ToggleActivation): Promise<Routine> {
+  async toggleActivation(userId: number, id: number, toggleActivation: ToggleActivation): Promise<Routine> {
     const routine = await this.routineRepository.findOne({
-      where: { id },
+      where: { id, userId },
     });
 
     if (!routine) throw new NotFoundException(`Rountine: ${id} not found`);
@@ -115,7 +118,7 @@ export class RoutineService {
     return this.routineRepository.save(routine);
   }
 
-  async updateRoutine(id: number, updateRoutineDto: UpdateRoutineDto): Promise<Routine> {
+  async updateRoutine(userId: number, id: number, updateRoutineDto: UpdateRoutineDto): Promise<Routine> {
     const { routineTags, ...others } = updateRoutineDto;
     if (routineTags) {
       //태그가 들어옴
@@ -125,7 +128,7 @@ export class RoutineService {
       const existingTags = await this.tagRepository.find({
         where: {
           name: In(routineTags),
-          userId: 1, //임시로 1
+          userId,
           routineTags: { routineId: id },
         },
         relations: ['routineTags'],
@@ -135,7 +138,7 @@ export class RoutineService {
       const notTags = await this.routineTagRepository.find({
         where: {
           routineId: id,
-          tag: { userId: 1, name: Not(In(routineTags)) },
+          tag: { userId, name: Not(In(routineTags)) },
         },
         relations: ['tag'],
       });
@@ -145,7 +148,7 @@ export class RoutineService {
       const newTags = routineTags
         .filter((tag) => !existingTags.find((t) => t.name === tag))
         .map((t) => {
-          return { name: t, userId: 1 };
+          return { name: t, userId };
         });
       //-> 공부
       const createTags = await this.tagRepository.save(newTags);
@@ -160,15 +163,15 @@ export class RoutineService {
     await this.routineRepository.update(id, updateRoutineInfo);
 
     return this.routineRepository.findOne({
-      where: { id },
+      where: { id, userId },
     });
   }
 
-  async deleteRoutine(id: number): Promise<Routine> {
+  async deleteRoutine(userId: number, id: number): Promise<Routine> {
     const routine = await this.routineRepository.findOne({
-      where: { id },
+      where: { id, userId },
     });
-    if (!routine) throw new BadRequestException('이미 삭제된 루틴입니다.');
+    if (!routine) throw new BadRequestException('이미 삭제된 루틴이거나 권한이 없습니다.');
     return await this.routineRepository.softRemove(routine);
   }
 }
