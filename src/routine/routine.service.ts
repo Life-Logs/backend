@@ -68,7 +68,7 @@ export class RoutineService {
     }
   }
 
-  async getAllRoutines(id): Promise<RoutineInfoDto[]> {
+  async getAllRoutines(id: number): Promise<RoutineInfoDto[]> {
     const routines = await this.routineRepository.find({
       relations: ['routineTags', 'routineTags.tag'],
       select: {
@@ -81,7 +81,7 @@ export class RoutineService {
         },
       },
       where: {
-        id: id,
+        userId: id,
       },
     });
 
