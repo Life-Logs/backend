@@ -2,6 +2,18 @@ import { IsString, IsOptional, IsBoolean, IsNumber, IsDateString, IsArray, IsObj
 import { ApiProperty } from '@nestjs/swagger';
 import { RoutineType } from '../enum/routine-type.enum';
 
+class DateTime {
+  @ApiProperty({ description: '요일', example: ['월', '화'] })
+  @IsArray()
+  day: Array<string>;
+
+  @ApiProperty({ description: '시작시간, 종료시간', example: { start: '09:00', end: '18:00' } })
+  @IsObject()
+  time: {
+    start: string;
+    end: string;
+  };
+}
 export class CreateRoutineDto {
   //@ApiProperty({ description: '유저 id', example: 1 })
   @IsOptional()
@@ -21,15 +33,25 @@ export class CreateRoutineDto {
 
   @ApiProperty({
     description: '날짜 및 시간 JSON으로',
-    example: {
-      monday: {
-        start: '09:00',
-        end: '18:00',
+    example: [
+      {
+        day: ['월', '화'],
+        time: {
+          start: '09:00',
+          end: '18:00',
+        },
       },
-    },
+      {
+        day: ['수', '목'],
+        time: {
+          start: '09:00',
+          end: '12:00',
+        },
+      },
+    ],
   })
-  @IsObject()
-  datetime: object;
+  @IsArray()
+  datetime: DateTime[];
   //json으로
   //{
   //  "monday": {
